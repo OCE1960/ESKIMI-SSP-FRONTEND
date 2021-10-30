@@ -1,57 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React, { Suspense} from 'react';
+import { lazy  } from "@loadable/component";
+import axios from 'axios';
+import { BrowserRouter as Router, Redirect, Route, Switch } from "react-router-dom";
+import Container from "./components/containers/Container";
+import { Spinner } from './components/Spinner';
 
-function App() {
+const Home = lazy(() => import("./pages/Home"));
+const Create = lazy(() => import("./pages/Create"));
+const Edit = lazy(() => import("./pages/Edit"));
+
+const App: React.FC = () => {
+  axios.defaults.baseURL = 'http://localhost/api/v1';
+  axios.defaults.withCredentials = true;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <Router>
+        <Suspense fallback={Spinner}>
+
+          <Switch>
+
+            <Route exact path={["/", "/new","/edit/:id"]}>
+                 <Container>
+                    <Switch> 
+                        <Route exact path="/">
+                          <Home />
+                        </Route>
+                        <Route exact path="/new">
+                          <Create />
+                        </Route>
+
+                        <Route exact path="/edit/:id">
+                          <Edit />
+                        </Route>
+                    </Switch>
+                  </Container>
+            </Route>
+
+            <Redirect from="*" to="/"  />
+            
+          </Switch>
+
+        </Suspense>
+    </Router>
   );
 }
 
